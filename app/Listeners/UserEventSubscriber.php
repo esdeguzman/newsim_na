@@ -1,0 +1,38 @@
+<?php
+
+namespace App\Listeners;
+use Laravel\Passport\Token;
+
+class UserEventSubscriber
+{
+    /**
+     * Handle user login events.
+     */
+    public function onUserLogin($event) {}
+
+    /**
+     * Handle user logout events.
+     */
+    public function onUserLogout($event) {
+        $tokens = Token::where('user_id', $event->user->id)->update(['revoked' => true]);
+    }
+
+    /**
+     * Register the listeners for the subscriber.
+     *
+     * @param  Illuminate\Events\Dispatcher  $events
+     */
+    public function subscribe($events)
+    {
+        $events->listen(
+            'Illuminate\Auth\Events\Login',
+            'App\Listeners\UserEventSubscriber@onUserLogin'
+        );
+
+        $events->listen(
+            'Illuminate\Auth\Events\Logout',
+            'App\Listeners\UserEventSubscriber@onUserLogout'
+        );
+    }
+
+}
